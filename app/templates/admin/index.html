@@ -10,14 +10,13 @@
 <form method="post" action="/admin/login">
     <div class="mb-3 mt-3">
         <label for="username">Tên đăng nhập</label>
-        <input type="text" class="form-control" id="username" name="username" placeholder="Tên đăng nhập" name="username">
-
+        <input type="text" class="form-control" id="username"
+               name="username" placeholder="Tên đăng nhập" required>
     </div>
-
     <div class="mt-3 mb-3">
         <label for="pwd">Mật khẩu</label>
-        <input type="password" class="form-control" id="pwd" name="password" placeholder="Mật khẩu" name="pswd">
-
+        <input type="password" class="form-control" id="pwd"
+               name="password" placeholder="Mật khẩu" required>
     </div>
      <div class="form-floating mt-3 mb-3">
          <button type="submit" class="btn btn-danger">Đăng nhập</button>
