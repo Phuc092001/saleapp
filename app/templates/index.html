@@ -4,7 +4,6 @@
 
 {% block content %}
 
-
 <section class="container">
     <ul class="pagination mt-1">
         {% for i in range(pages) %}
@@ -28,4 +27,6 @@
         {% endfor %}
     </div>
 </section>
+
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
 {% endblock %}
