@@ -1,4 +1,5 @@
 import math
+
 from flask import render_template, request, redirect, session, jsonify
 import dao
 import utils
@@ -6,29 +7,26 @@ from app import app, login
 from flask_login import login_user
 
 
-@app.route('/')
+@app.route("/")
 def index():
     kw = request.args.get('kw')
     cate_id = request.args.get('cate_id')
-    page = request.args.get("page")
+    page = request.args.get('page')
 
-    cates = dao.load_categories()
-    products = dao.load_products(kw=kw, cate_id=cate_id, page=page)
+    products = dao.load_products(kw, cate_id, page)
+    num = dao.count_product()
 
-    total = dao.count_product()
-
-    return render_template('index.html',
-                           products=products,
-                           pages=math.ceil(total/app.config['PAGE_SIZE']))
+    return render_template('index.html', products=products,
+                           pages=math.ceil(num/app.config['PAGE_SIZE']))
 
 
-@app.route('/products/<id>')
-def details(id):
-    return render_template('details.html')
+@app.route('/login')
+def process_user_login():
+    return render_template('login.html')
 
 
 @app.route('/admin/login', methods=['post'])
-def login_admin_process():
+def process_admin_login():
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -40,35 +38,35 @@ def login_admin_process():
 
 
 @app.route('/api/cart', methods=['post'])
-def add_cart():
-    """
+def add_to_cart():
+    '''
     {
-    "cart": {
+        "cart": {
             "1": {
-                "id": 1,
+                "id": "1",
                 "name": "ABC",
-                "price": 12,
+                "price": 123,
                 "quantity": 2
-            }, "2": {
-                "id": 2,
+            },
+            "2": {
+                "id": "2",
                 "name": "ABC",
-                "price": 12,
-                "quantity": 2
+                "price": 123,
+                "quantity": 1
             }
         }
     }
-    :return:
-    """
+    '''
+
     cart = session.get('cart')
     if cart is None:
         cart = {}
 
     data = request.json
-    print(data)
     id = str(data.get("id"))
 
-    if id in cart: # san pham da co trong gio
-        cart[id]["quantity"] = cart[id]["quantity"] + 1
+    if id in cart: # sp da co trong gio
+        cart[id]['quantity'] += 1
     else: # san pham chua co trong gio
         cart[id] = {
             "id": id,
@@ -82,8 +80,31 @@ def add_cart():
     return jsonify(utils.count_cart(cart))
 
 
-@app.route("/cart")
-def cart_list():
+@app.route('/api/cart/<product_id>', methods=['put'])
+def update_cart(product_id):
+    cart = session.get('cart')
+    if cart and product_id in cart:
+        quantity = request.json.get('quantity')
+        cart[product_id]['quantity'] = int(quantity)
+
+    session['cart'] = cart
+
+    return jsonify(utils.count_cart(cart))
+
+
+@app.route('/api/cart/<product_id>', methods=['delete'])
+def delete_cart(product_id):
+    cart = session.get('cart')
+    if cart and product_id in cart:
+        del cart[product_id]
+
+    session['cart'] = cart
+
+    return jsonify(utils.count_cart(cart))
+
+
+@app.route('/cart')
+def cart():
     return render_template('cart.html')
 
 
